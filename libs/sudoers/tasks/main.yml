@@ -1,0 +1,8 @@
+---
+- name: Current user can become others without pwd
+  become: yes
+  template: 'src=user.sudoers.d.j2 dest=/etc/sudoers.d/{{ lookup("env","USER")}}'
+
+- name: Deploy user can become others without pwd
+  become: yes
+  template: 'src=deploy_user.sudoers.d.j2 dest=/etc/sudoers.d/{{deploy_user}}'

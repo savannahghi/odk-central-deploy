@@ -1,0 +1,41 @@
+{
+    "default": {
+        "database": {
+            "host": "{{ db_host }}",
+            "user": "{{ db_user }}",
+            "password": "{{ db_password }}",
+            "database": "{{ db_name }}"
+        },
+        "email": {
+            "secure": true,
+            "serviceAccount": "{{ service_email }}",
+            "transport": "smtp",
+            "transportOpts": {
+                "auth": {
+                    "user": "{{ mail_username }}",
+                    "pass": "{{ mail_password }}"
+                },
+                "host": "{{ mail_host }}",
+                "port": "{{ mail_port }}"
+            }
+        },
+        "xlsform": {
+            "host": "pyxform",
+            "port": 80
+        },
+        "enketo": {
+            "url": "http://enketo:8005/-",
+            "apiKey": "${ENKETO_API_KEY}"
+        },
+        "env": {
+            "domain": "https://${DOMAIN}",
+            "sysadminAccount": "${SYSADMIN_EMAIL}"
+        },
+        "external": {
+            "sentry": {
+                "key": "{{ sentry_key }}",
+                "project": "{{ sentry_project }}"
+            }
+        }
+    }
+}

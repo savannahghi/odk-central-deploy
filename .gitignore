@@ -1,0 +1,4 @@
+ansible.cfg
+hosts
+inventory
+ssh.cfg

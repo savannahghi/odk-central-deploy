@@ -1,0 +1,20 @@
+- hosts: all
+  vars:
+    lock_file_path: /tmp/ansible-playbook-install.lock
+    force_ignore_lock: "{{force_ignore_lock}}"
+  name: Deploy ODK Central
+  pre_tasks:
+    - name: Create deploy user
+      ansible.builtin.user: name="{{deploy_user}}" groups=www-data,sudo state=present
+      become: yes
+
+  post_tasks:
+    - name: Deploy successful, remove lock_file
+      ansible.builtin.file: path={{lock_file_path}} state=absent
+      become: yes
+
+  roles:
+    - common
+    - sudoers
+    - prelude
+    - odk_central

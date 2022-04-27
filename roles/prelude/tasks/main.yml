@@ -1,0 +1,40 @@
+---
+
+- name: Ensure docker service is (re)started
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    enabled: yes
+    force: yes
+  become: yes
+  tags: ["deploy", "odk_central", "prelude"]
+
+- name: Ensure the firewall is disabled  # This is needed to ensure Enketo works correctly. Refer to this for details: https://docs.getodk.org/central-install-digital-ocean/#changing-server-settings
+  ansible.builtin.shell:
+    cmd: "ufw disable"
+    warn: no
+  become: yes
+  tags: ["deploy", "odk_central", "prelude"]
+
+- name: Add server user
+  ansible.builtin.user:
+    append: yes
+    create_home: yes
+    groups: "{{ deploy_group }}"
+    name: "{{ server_user }}"
+    password: "{{ server_user_password }}"
+    state: present
+    shell: /bin/bash
+    update_password: always
+  become: yes
+  tags: ["deploy", "odk_central", "prelude"]
+
+- name: Create a working directory for the server user
+  ansible.builtin.file:
+    owner: "{{ server_user }}"
+    path: "/home/{{ server_user }}/central"
+    state: directory
+  become: yes
+  become_user: "{{ server_user }}"
+  tags: ["deploy", "odk_central", "prelude"]
+

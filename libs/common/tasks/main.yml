@@ -1,0 +1,119 @@
+---
+- name: Update packages
+  ansible.builtin.apt: update_cache=yes
+  become: yes
+  tags: ["common", "maintenance", "dependencies", "deps"]
+
+- name: Set localtime to Africa/Nairobi
+  ansible.builtin.file: state=link src=/usr/share/zoneinfo/Africa/Nairobi dest=/etc/localtime
+  become: yes
+  tags: ["common", "maintenance"]
+
+- name: Install and compile common dependencies
+  ansible.builtin.apt: name={{ item }} state=latest
+  become: yes
+  loop:
+    - apt-transport-https
+    - build-essential
+    - ca-certificates
+    - curl
+    - git
+    - gnupg
+    - gnupg-agent
+    - htop
+    - libpq-dev
+    - libssl-dev
+    - logrotate
+    - lsb-release
+    - nano
+    - ntp
+    - openssh-server
+    - postgresql-client
+    - postgresql-client-common
+    - python-dev
+    - python-ipaddress
+    - python-setuptools
+    - python3-dev
+    - python3-pip
+    - python3-setuptools
+    - software-properties-common
+    - sshpass
+    - tmux
+    - unzip
+    - vim
+  tags: ["common", "maintenance", "dependencies", "deps"]
+
+- name: Uninstall old versions of docker if present
+  ansible.builtin.apt: name={{ item }} state=absent
+  become: yes
+  loop:
+    - containerd
+    - docker
+    - docker-engine
+    - docker.io
+    - runc
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Setup docker repository
+  ansible.builtin.shell:
+    cmd: "{{ item }}"
+    warn: no
+  become: yes
+  loop:
+    - "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor --yes -o /usr/share/keyrings/docker-archive-keyring.gpg"
+    - "echo deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Update packages (to pickup the docker repo)
+  ansible.builtin.apt: update_cache=yes
+  become: yes
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Install docker engine
+  ansible.builtin.apt: name={{ item }} state=latest
+  become: yes
+  loop:
+    - containerd.io
+    - docker-ce
+    - docker-ce-cli
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Download and install docker compose
+  ansible.builtin.get_url:
+    dest: "/usr/local/bin/docker-compose"
+    force: yes
+    mode: u=rwx,g=rwx,o=rx
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-{{ server_arch }}"
+  become: yes
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Install docker python libraries
+  ansible.builtin.pip:
+    executable: pip3
+    name: "{{ item }}"
+    state: latest
+  become: yes
+  loop:
+    - docker
+    - docker-compose
+  tags: ["common", "maintenance", "dependencies", "deps", "docker"]
+
+- name: Overwrite issue file
+  template:
+    dest: /etc/issue
+    src: issue
+  become: yes
+  tags: ["common", "maintenance"]
+
+- name: Add shared deploy group
+  ansible.builtin.group: name={{deploy_group}} state=present
+  become: yes
+  tags: ["common", "maintenance", "deploy"]
+
+- name: Add the deploy user and root user to the deploy group
+  ansible.builtin.user: name={{item}} groups={{deploy_group}} append=yes
+  become: yes
+  loop:
+      - root
+      - "{{ deploy_user }}"
+  tags: ["common", "maintenance", "deploy"]

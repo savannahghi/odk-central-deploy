@@ -1,0 +1,23 @@
+---
+# Settings for the production hosts
+
+db_host: "{{ vault_db_host }}"
+db_name: "{{ vault_db_name }}"
+db_password: "{{ vault_db_password }}"
+db_port: "{{ vault_db_port }}"
+db_user: "{{ vault_db_user }}"
+docker_compose_version: "1.29.2"
+host_domain: "odk.fahariyajamii.org"
+mail_host: "{{ vault_mail_host }}"
+mail_password: "{{ vault_mail_password }}"
+mail_port: "{{ vault_mail_port }}"
+mail_username: "{{ vault_mail_username }}"
+odk_central_git_repo_url: "https://github.com/getodk/central"
+sentry_key: "{{ vault_sentry_key }}"
+sentry_project: "{{ vault_sentry_project }}"
+server_arch: "Linux-x86_64"
+server_user: "{{ vault_server_user }}"
+server_user_password: "{{ vault_server_user_password }}"
+service_email: "{{ vault_service_email }}"
+support_email: "{{ vault_support_email }}"
+system_admin_email: "{{ vault_system_admin_email }}"

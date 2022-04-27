@@ -1,0 +1,39 @@
+---
+
+- name: Get ODK central
+  ansible.builtin.git:
+    clone: yes
+    dest: "/home/{{ server_user }}/central"
+    force: yes
+    recursive: yes
+    repo: "{{ odk_central_git_repo_url }}"
+    update: yes
+  become: yes
+  become_user: "{{ server_user }}"
+  tags: ["deploy", "odk_central"]
+
+- name: Copy server configuration files
+  ansible.builtin.template:
+    backup: yes
+    force: yes
+    group: "{{ deploy_group }}"
+    owner: "{{ server_user }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  become: yes
+  become_user: "{{ server_user }}"
+  loop:
+      - {src: ".env", dest: "/home/{{ server_user }}/central/.env"}
+      - {src: "docker-compose.yml", dest: "/home/{{ server_user }}/central/docker-compose.yml"}
+      - {src: "enketo.config.json", dest: "/home/{{ server_user }}/central/files/enketo/config.json.template"}
+      - {src: "service.config.json", dest: "/home/{{ server_user }}/central/files/service/config.json.template"}
+  tags: ["deploy", "odk_central"]
+
+- name: Build the server
+  community.docker.docker_compose:
+    build: yes
+    project_name: central
+    project_src: "/home/{{ server_user }}/central"
+    state: present
+  become: yes
+  tags: ["deploy", "odk_central"]

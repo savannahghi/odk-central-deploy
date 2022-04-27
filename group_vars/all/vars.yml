@@ -1,0 +1,5 @@
+---
+# General settings for all hosts
+ansible_python_interpreter: /usr/bin/python3
+deploy_group: "{{ vault_deploy_group }}"
+deploy_user: "{{ vault_deploy_user }}"
